@@ -13,3 +13,16 @@ export const registerUser = async (username, password) => {
         throw error;
     }
 };
+
+// Function to log in an existing user
+export const loginUser = async (username, password) => {
+    try {
+        const response = await axios.post(`${API_URL}/login`, {
+            username: username,
+            password: password
+        });
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
