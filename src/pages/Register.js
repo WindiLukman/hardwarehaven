@@ -1,19 +1,22 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import '../styles/UserAuth.css'; // Importing combined CSS file for styling
+import '../styles/UserAuth.css';
+import { registerUser } from "./api";
 
 const Register = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [registered, setRegistered] = useState(false);
+    const [error, setError] = useState('');
 
-    const handleRegister = () => {
-        // Here you can implement your registration logic
-        // For simplicity, let's just set registered to true if both fields are filled
-        if (username && password) {
+    const handleRegister = async () => {
+        try {
+            const response = await registerUser(username, password);
+            console.log(response);
             setRegistered(true);
-        } else {
-            alert('Please enter both username and password');
+        } catch (error) {
+            setError('Error registering user: ' + error.message); // Set error message
+            console.error('Error registering user:', error);
         }
     };
 
@@ -46,6 +49,7 @@ const Register = () => {
                             />
                             <br/>
                             <button onClick={handleRegister}>Register</button>
+                            {error && <p className="error-message">{error}</p>} {/* Display error message */}
                             <br/>
                             <p>Already have an account? <Link to="/login">Login</Link></p>
                         </div>
