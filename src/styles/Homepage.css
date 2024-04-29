@@ -1,0 +1,62 @@
+.image-container {
+    background-image: url("../assets/images/motherboard2.jpg");
+    background-size: cover;
+    opacity: 0.92;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1; /* Ensure it's behind other content */
+}
+
+.container {
+    width: 80%;
+    margin: 140px auto 0;
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent white */
+    border-radius: 10px;
+
+}
+
+.search-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.search-bar input[type="text"],
+.search-bar select {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    width: 45%; /* Adjust width as needed */
+    font-family: "Futura Book", sans-serif;
+}
+
+.list-container {
+    overflow-y: auto;
+    max-height: 600px; /* Adjust max height as needed */
+}
+
+.hardware-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.item-header {
+    cursor: pointer;
+    padding: 10px 0;
+    border-bottom: 1px solid #ccc;
+}
+
+.item-header:hover {
+    background-color: #f0f0f0;
+}
+
+.item-details {
+    padding: 10px 0;
+}
