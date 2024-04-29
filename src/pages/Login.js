@@ -1,20 +1,18 @@
 import React, { useState } from 'react';
-import {Link, Navigate} from 'react-router-dom';
-import { loginUser } from './api';
+import { Link, Navigate } from 'react-router-dom';
 import '../styles/UserAuth.css';
+import { loginUser } from './api';
 
 const Login = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [loggedIn, setLoggedIn] = useState(false);
     const [error, setError] = useState('');
-    const [loggedIn, setLoggedIn] = useState(false); // Add state for loggedIn status
 
     const handleLogin = async () => {
         try {
-            // Call the loginUser function with username and password
-            await loginUser(username, password);
-
-            // Update loggedIn state upon successful login
+            const response = await loginUser(username, password);
+            console.log(response);
             setLoggedIn(true);
         } catch (error) {
             console.error('Login error:', error); // Log the full error message

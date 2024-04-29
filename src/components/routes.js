@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const client = require('../components/db');
-const bcrypt = require('bcrypt');
 
 // Route handler for user registration
 router.post('/register', async (req, res) => {
@@ -38,11 +37,10 @@ router.post('/login', async (req, res) => {
             return res.status(401).json({ error: 'Invalid username or password' });
         }
 
-        // Compare hashed password
-        const hashedPassword = result.rows[0].password;
-        const passwordMatch = await bcrypt.compare(password, hashedPassword);
+        // Compare raw password
+        const storedPassword = result.rows[0].password;
 
-        if (!passwordMatch) {
+        if (password !== storedPassword) {
             return res.status(401).json({ error: 'Invalid username or password' });
         }
 
@@ -53,5 +51,7 @@ router.post('/login', async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 });
+
+
 
 module.exports = router;
