@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import '../styles/Homepage.css'; // Import the CSS file
+import ReactPaginate from 'react-paginate'; // Import the react-paginate module
 
 const Homepage = () => {
     const [hardwareItems, setHardwareItems] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterType, setFilterType] = useState('all');
     const [minimizedItems, setMinimizedItems] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage] = useState(10); // Number of items to display per page
 
     // List of hardware types
     const hardwareTypes = ['case', 'case-accessory', 'case-fan', 'cpu', 'cpu-cooler', 'external-hard-drive', 'fan-controller', 'headphones', 'internal-hard-drive', 'keyboard', 'memory', 'monitor', 'motherboard', 'mouse', 'optical-drive', 'os', 'power-supply', 'sound-card', 'speakers', 'thermal-paste', 'ups', 'video-card', 'webcam', 'wired-network-card', 'wireless-network-card'];
@@ -32,6 +35,14 @@ const Homepage = () => {
         const matchesFilterType = filterType === 'all' || item.type === filterType;
         return matchesSearchTerm && matchesFilterType;
     });
+
+    // Pagination logic
+    const pageCount = Math.ceil(filteredItems.length / itemsPerPage);
+
+    const handlePageClick = (data) => {
+        let selected = data.selected;
+        setCurrentPage(selected+1);
+    };
 
     const toggleMinimized = (index) => {
         setMinimizedItems(prevMinimizedItems => {
@@ -60,7 +71,7 @@ const Homepage = () => {
                 </div>
                 <div className="list-container">
                     <ul className="hardware-list">
-                        {filteredItems.map((item, index) => (
+                        {filteredItems.slice((currentPage-1)*itemsPerPage, currentPage*itemsPerPage).map((item, index) => (
                             <li key={index}>
                                 <div onClick={() => toggleMinimized(index)} className="item-header">
                                     <strong>{item.name}</strong>
@@ -77,6 +88,22 @@ const Homepage = () => {
                             </li>
                         ))}
                     </ul>
+                </div>
+                {/* New div for pagination */}
+                <div className="pagination-container">
+                    <ReactPaginate
+                        previousLabel={'previous'}
+                        nextLabel={'next'}
+                        breakLabel={'...'}
+                        breakClassName={'break-me'}
+                        pageCount={pageCount}
+                        marginPagesDisplayed={2}
+                        pageRangeDisplayed={5}
+                        onPageChange={handlePageClick}
+                        containerClassName={'pagination'}
+                        subContainerClassName={'pages pagination'}
+                        activeClassName={'active'}
+                    />
                 </div>
             </div>
         </div>
