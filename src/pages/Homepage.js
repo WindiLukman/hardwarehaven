@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate from react-router-dom
 import '../styles/Homepage.css'; // Import the CSS file
 import ReactPaginate from 'react-paginate'; // Import the react-paginate module
 
@@ -9,6 +10,7 @@ const Homepage = () => {
     const [minimizedItems, setMinimizedItems] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(10); // Number of items to display per page
+    const navigate = useNavigate(); // Initialize the useNavigate hook
 
     // List of hardware types
     const hardwareTypes = ['case', 'case-accessory', 'case-fan', 'cpu', 'cpu-cooler', 'external-hard-drive', 'fan-controller', 'headphones', 'internal-hard-drive', 'keyboard', 'memory', 'monitor', 'motherboard', 'mouse', 'optical-drive', 'os', 'power-supply', 'sound-card', 'speakers', 'thermal-paste', 'ups', 'video-card', 'webcam', 'wired-network-card', 'wireless-network-card'];
@@ -41,7 +43,7 @@ const Homepage = () => {
 
     const handlePageClick = (data) => {
         let selected = data.selected;
-        setCurrentPage(selected+1);
+        setCurrentPage(selected + 1);
     };
 
     const toggleMinimized = (index) => {
@@ -50,6 +52,10 @@ const Homepage = () => {
             newMinimizedItems[index] = !newMinimizedItems[index];
             return newMinimizedItems;
         });
+    };
+
+    const handleBuildButtonClick = () => {
+        navigate('/build'); // Navigate to the build page
     };
 
     return (
@@ -71,7 +77,7 @@ const Homepage = () => {
                 </div>
                 <div className="list-container">
                     <ul className="hardware-list">
-                        {filteredItems.slice((currentPage-1)*itemsPerPage, currentPage*itemsPerPage).map((item, index) => (
+                        {filteredItems.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((item, index) => (
                             <li key={index}>
                                 <div onClick={() => toggleMinimized(index)} className="item-header">
                                     <strong>{item.name}</strong>
@@ -104,6 +110,12 @@ const Homepage = () => {
                         subContainerClassName={'pages pagination'}
                         activeClassName={'active'}
                     />
+                </div>
+                {/* Button for navigation to build page */}
+                <div className="build-button-container">
+                    <button onClick={handleBuildButtonClick} className="build-button">
+                        Go to Build Page
+                    </button>
                 </div>
             </div>
         </div>
