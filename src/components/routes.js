@@ -87,4 +87,21 @@ router.post('/save-build', async (req, res) => {
     }
 });
 
+// Route handler for fetching builds by username
+router.get('/builds', async (req, res) => {
+    const username = req.query.username;
+
+    try {
+        const query = `
+            SELECT * FROM builds WHERE username = $1;
+        `;
+        const result = await client.query(query, [username]);
+
+        res.status(200).json(result.rows);
+    } catch (error) {
+        console.error('Error fetching builds:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 module.exports = router;

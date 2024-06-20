@@ -1,3 +1,4 @@
+// Build.js
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ReactPaginate from 'react-paginate';
@@ -13,6 +14,8 @@ const Build = () => {
     const [componentList, setComponentList] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(0);
+    const [builds, setBuilds] = useState([]);
+    const [selectedBuild, setSelectedBuild] = useState(null); // To store details of selected build
     const itemsPerPage = 10;
     const navigate = useNavigate();
 
@@ -24,6 +27,25 @@ const Build = () => {
                 .catch(error => console.error('Error fetching components:', error));
         }
     }, [currentType]);
+
+    useEffect(() => {
+        // Fetch builds for the current user
+        fetchBuilds();
+    }, []);
+
+    const fetchBuilds = async () => {
+        try {
+            const response = await fetch(`http://localhost:5000/api/builds?username=${user.username}`);
+            if (response.ok) {
+                const data = await response.json();
+                setBuilds(data);
+            } else {
+                console.error('Failed to fetch builds:', response.statusText);
+            }
+        } catch (error) {
+            console.error('Error fetching builds:', error);
+        }
+    };
 
     const handleSelectComponent = (componentType, componentValue) => {
         setSelectedComponents(prevState => ({
@@ -53,6 +75,8 @@ const Build = () => {
             if (response.ok) {
                 console.log('Build saved:', data.build);
                 // Optionally, redirect or show success message
+                // After saving, fetch the updated builds list
+                fetchBuilds();
             } else {
                 console.error('Failed to save build:', data.error);
             }
@@ -61,8 +85,6 @@ const Build = () => {
         }
     };
 
-
-
     const handlePageClick = ({ selected }) => {
         setCurrentPage(selected);
     };
@@ -70,6 +92,10 @@ const Build = () => {
     const handleLogout = () => {
         logoutUser();
         navigate('/login');
+    };
+
+    const handleBuildClick = (build) => {
+        setSelectedBuild(build);
     };
 
     const filteredList = componentList.filter(item => item.name.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -141,7 +167,35 @@ const Build = () => {
                 </button>
             </div>
             <div>
-                <button onClick={() => navigate('/homepage')}>
+                <h2>My Builds</h2>
+                <ul>
+                    {builds.map(build => (
+                        <li key={build.build_id} onClick={() => handleBuildClick(build)}>
+                            <strong>{build.build_name}</strong> - Created by {build.username}
+                            {/* Display other build details as needed */}
+                        </li>
+                    ))}
+                </ul>
+            </div>
+            {selectedBuild && (
+                <div>
+                    <h2>Selected Build Details</h2>
+                    <p>Build Name: {selectedBuild.build_name}</p>
+                    <p>Created by: {selectedBuild.username}</p>
+                    <p>Motherboard: {selectedBuild.motherboard}</p>
+                    <p>CPU: {selectedBuild.cpu}</p>
+                    <p>CPU Cooler: {selectedBuild.cpu_cooler}</p>
+                    <p>Memory: {selectedBuild.memory}</p>
+                    <p>Video Card: {selectedBuild.video_card}</p>
+                    <p>Power Supply: {selectedBuild.power_supply}</p>
+                    <p>Case: {selectedBuild.case_type}</p>
+                    <p>Case Fan: {selectedBuild.case_fan}</p>
+                    <p>Internal Hard Drive: {selectedBuild.internal_hard_drive}</p>
+                    <p>Sound Card: {selectedBuild.sound_card}</p>
+                </div>
+            )}
+            <div>
+            <button onClick={() => navigate('/homepage')}>
                     Back to Homepage
                 </button>
                 <button onClick={handleLogout}>
