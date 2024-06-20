@@ -14,6 +14,7 @@ const App = () => {
                 <Route path="/homepage" element={<Homepage />} />
                 <Route path="/build" element={<Build />} />
                 {/* Add more routes for other pages if needed */}
+                <Route path="/" element={<Navigate to="/login" />} />
             </Routes>
         </Router>
     );
