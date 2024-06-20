@@ -7,6 +7,7 @@ const app = express();
 
 app.use(cors()); // Use cors middleware
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // Use routes defined in routes.js
 app.use('/api', routes);

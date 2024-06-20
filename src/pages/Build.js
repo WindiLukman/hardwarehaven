@@ -32,10 +32,36 @@ const Build = () => {
         }));
     };
 
-    const handleSaveBuild = () => {
-        // Save the build here
-        console.log('Build saved:', buildName, selectedComponents);
+    const handleSaveBuild = async () => {
+        try {
+            console.log('Saving build...', buildName, selectedComponents, user.username);
+
+            const response = await fetch('http://localhost:5000/api/save-build', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    buildName,
+                    selectedComponents,
+                    username: user.username
+                })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                console.log('Build saved:', data.build);
+                // Optionally, redirect or show success message
+            } else {
+                console.error('Failed to save build:', data.error);
+            }
+        } catch (error) {
+            console.error('Error saving build:', error);
+        }
     };
+
+
 
     const handlePageClick = ({ selected }) => {
         setCurrentPage(selected);
@@ -53,14 +79,6 @@ const Build = () => {
         <div>
             <h1>Build Your Computer</h1>
             {user && <h2>Welcome, {user.username}!</h2>}
-            <div>
-                <button onClick={() => navigate('/homepage')}>
-                    Back to Homepage
-                </button>
-                <button onClick={handleLogout}>
-                    Logout
-                </button>
-            </div>
             <div>
                 <select onChange={(e) => setCurrentType(e.target.value)}>
                     <option value="">Select a component</option>
@@ -102,15 +120,6 @@ const Build = () => {
                 </div>
             )}
             <div>
-                <input
-                    type="text"
-                    placeholder="Enter build name..."
-                    value={buildName}
-                    onChange={(e) => setBuildName(e.target.value)}
-                />
-                <button onClick={handleSaveBuild}>
-                    Save Build
-                </button>
                 <table>
                     <tbody>
                     {hardwareTypes.map(type => (
@@ -121,6 +130,23 @@ const Build = () => {
                     ))}
                     </tbody>
                 </table>
+                <input
+                    type="text"
+                    placeholder="Enter build name..."
+                    value={buildName}
+                    onChange={(e) => setBuildName(e.target.value)}
+                />
+                <button onClick={handleSaveBuild}>
+                    Save Build
+                </button>
+            </div>
+            <div>
+                <button onClick={() => navigate('/homepage')}>
+                    Back to Homepage
+                </button>
+                <button onClick={handleLogout}>
+                    Logout
+                </button>
             </div>
         </div>
     );
