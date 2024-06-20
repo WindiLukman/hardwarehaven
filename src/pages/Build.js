@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import ReactPaginate from 'react-paginate';
+import { UserContext } from '../context/UserContext';
 
 const hardwareTypes = ['motherboard', 'cpu', 'cpu-cooler', 'memory', 'video-card', 'power-supply', 'case', 'case-fan', 'internal-hard-drive', 'sound-card'];
 
 const Build = () => {
+    const { user } = useContext(UserContext);
     const [selectedComponents, setSelectedComponents] = useState({});
     const [currentType, setCurrentType] = useState(null);
     const [buildName, setBuildName] = useState('');
@@ -43,6 +45,7 @@ const Build = () => {
     return (
         <div>
             <h1>Build Your Computer</h1>
+            {user && <h2>Welcome, {user.username}!</h2>}
             <div>
                 <select onChange={(e) => setCurrentType(e.target.value)}>
                     <option value="">Select a component</option>

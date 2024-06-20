@@ -1,21 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import '../styles/UserAuth.css';
-import { loginUser } from './api';
+import { loginUser as loginUserApi } from './api'; // Assuming you have an API function for login
+import { UserContext } from '../context/UserContext';
 
 const Login = () => {
+    const { user, loginUser } = useContext(UserContext);
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const [loggedIn, setLoggedIn] = useState(false);
     const [error, setError] = useState('');
 
     const handleLogin = async () => {
         try {
-            const response = await loginUser(username, password);
+            const response = await loginUserApi(username, password);
             console.log(response);
-            setLoggedIn(true);
+
+            // Log the user in
+            loginUser({ username });
+
         } catch (error) {
-            console.error('Login error:', error); // Log the full error message
+            console.error('Login error:', error);
 
             if (error.response.status === 401) {
                 setError('Invalid username or password');
@@ -25,9 +29,8 @@ const Login = () => {
         }
     };
 
-    // Redirect to Homepage if loggedIn is true
-    if (loggedIn) {
-        return <Navigate to="/homepage" />; // Use Navigate component
+    if (user) {
+        return <Navigate to="/homepage" />;
     }
 
     return (

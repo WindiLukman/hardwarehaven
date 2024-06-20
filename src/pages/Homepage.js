@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate from react-router-dom
-import '../styles/Homepage.css'; // Import the CSS file
-import ReactPaginate from 'react-paginate'; // Import the react-paginate module
+import React, { useState, useEffect, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+import '../styles/Homepage.css';
+import ReactPaginate from 'react-paginate';
+import { UserContext } from '../context/UserContext';
 
 const Homepage = () => {
+    const { user } = useContext(UserContext);
     const [hardwareItems, setHardwareItems] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterType, setFilterType] = useState('all');
@@ -12,18 +14,15 @@ const Homepage = () => {
     const [itemsPerPage] = useState(10); // Number of items to display per page
     const navigate = useNavigate(); // Initialize the useNavigate hook
 
-    // List of hardware types
     const hardwareTypes = ['case', 'case-accessory', 'case-fan', 'cpu', 'cpu-cooler', 'external-hard-drive', 'fan-controller', 'headphones', 'internal-hard-drive', 'keyboard', 'memory', 'monitor', 'motherboard', 'mouse', 'optical-drive', 'os', 'power-supply', 'sound-card', 'speakers', 'thermal-paste', 'ups', 'video-card', 'webcam', 'wired-network-card', 'wireless-network-card'];
 
     useEffect(() => {
-        // Fetch each hardware type separately
         Promise.all(hardwareTypes.map(type =>
             fetch(`/database/${type}.json`)
                 .then(response => response.json())
                 .then(data => data.map(item => ({ ...item, type }))) // Add type property here
         ))
             .then(dataArrays => {
-                // Combine all the data into one array
                 const combinedData = [].concat(...dataArrays);
                 setHardwareItems(combinedData);
                 setMinimizedItems(Array(combinedData.length).fill(true)); // Initialize all items as minimized
@@ -31,14 +30,12 @@ const Homepage = () => {
             .catch(error => console.error('Error fetching hardware items:', error));
     }, []);
 
-    // Filter hardware items by search term and type
     const filteredItems = hardwareItems.filter(item => {
         const matchesSearchTerm = item.name.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesFilterType = filterType === 'all' || item.type === filterType;
         return matchesSearchTerm && matchesFilterType;
     });
 
-    // Pagination logic
     const pageCount = Math.ceil(filteredItems.length / itemsPerPage);
 
     const handlePageClick = (data) => {
@@ -59,8 +56,9 @@ const Homepage = () => {
     };
 
     return (
-        <div className={"image-container"}>
+        <div className="image-container">
             <div className="container">
+                {user && <h2>Welcome, {user.username}!</h2>}
                 <div className="search-bar">
                     <input
                         type="text"
@@ -95,7 +93,6 @@ const Homepage = () => {
                         ))}
                     </ul>
                 </div>
-                {/* New div for pagination */}
                 <div className="pagination-container">
                     <ReactPaginate
                         previousLabel={'previous'}
@@ -111,7 +108,6 @@ const Homepage = () => {
                         activeClassName={'active'}
                     />
                 </div>
-                {/* Button for navigation to build page */}
                 <div className="build-button-container">
                     <button onClick={handleBuildButtonClick} className="build-button">
                         Go to Build Page
