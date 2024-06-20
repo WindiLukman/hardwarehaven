@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import ReactPaginate from 'react-paginate';
 import { UserContext } from '../context/UserContext';
 
 const hardwareTypes = ['motherboard', 'cpu', 'cpu-cooler', 'memory', 'video-card', 'power-supply', 'case', 'case-fan', 'internal-hard-drive', 'sound-card'];
 
 const Build = () => {
-    const { user } = useContext(UserContext);
+    const { user, logoutUser } = useContext(UserContext);
     const [selectedComponents, setSelectedComponents] = useState({});
     const [currentType, setCurrentType] = useState(null);
     const [buildName, setBuildName] = useState('');
@@ -13,6 +14,7 @@ const Build = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(0);
     const itemsPerPage = 10;
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (currentType) {
@@ -39,6 +41,11 @@ const Build = () => {
         setCurrentPage(selected);
     };
 
+    const handleLogout = () => {
+        logoutUser();
+        navigate('/login');
+    };
+
     const filteredList = componentList.filter(item => item.name.toLowerCase().includes(searchTerm.toLowerCase()));
     const pageCount = Math.ceil(filteredList.length / itemsPerPage);
 
@@ -46,6 +53,14 @@ const Build = () => {
         <div>
             <h1>Build Your Computer</h1>
             {user && <h2>Welcome, {user.username}!</h2>}
+            <div>
+                <button onClick={() => navigate('/homepage')}>
+                    Back to Homepage
+                </button>
+                <button onClick={handleLogout}>
+                    Logout
+                </button>
+            </div>
             <div>
                 <select onChange={(e) => setCurrentType(e.target.value)}>
                     <option value="">Select a component</option>

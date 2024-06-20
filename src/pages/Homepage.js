@@ -2,17 +2,17 @@ import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/Homepage.css';
 import ReactPaginate from 'react-paginate';
-import { UserContext } from '../context/UserContext';
+import { UserContext } from '../context/UserContext'; // Import UserContext
 
 const Homepage = () => {
-    const { user } = useContext(UserContext);
+    const { logoutUser } = useContext(UserContext); // Access logoutUser function from UserContext
     const [hardwareItems, setHardwareItems] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterType, setFilterType] = useState('all');
     const [minimizedItems, setMinimizedItems] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage] = useState(10); // Number of items to display per page
-    const navigate = useNavigate(); // Initialize the useNavigate hook
+    const [itemsPerPage] = useState(10);
+    const navigate = useNavigate();
 
     const hardwareTypes = ['case', 'case-accessory', 'case-fan', 'cpu', 'cpu-cooler', 'external-hard-drive', 'fan-controller', 'headphones', 'internal-hard-drive', 'keyboard', 'memory', 'monitor', 'motherboard', 'mouse', 'optical-drive', 'os', 'power-supply', 'sound-card', 'speakers', 'thermal-paste', 'ups', 'video-card', 'webcam', 'wired-network-card', 'wireless-network-card'];
 
@@ -20,12 +20,12 @@ const Homepage = () => {
         Promise.all(hardwareTypes.map(type =>
             fetch(`/database/${type}.json`)
                 .then(response => response.json())
-                .then(data => data.map(item => ({ ...item, type }))) // Add type property here
+                .then(data => data.map(item => ({ ...item, type })))
         ))
             .then(dataArrays => {
                 const combinedData = [].concat(...dataArrays);
                 setHardwareItems(combinedData);
-                setMinimizedItems(Array(combinedData.length).fill(true)); // Initialize all items as minimized
+                setMinimizedItems(Array(combinedData.length).fill(true));
             })
             .catch(error => console.error('Error fetching hardware items:', error));
     }, []);
@@ -52,13 +52,17 @@ const Homepage = () => {
     };
 
     const handleBuildButtonClick = () => {
-        navigate('/build'); // Navigate to the build page
+        navigate('/build');
+    };
+
+    const handleLogout = () => {
+        logoutUser(); // Call logoutUser function from UserContext
+        navigate('/login'); // Redirect to login page after logout
     };
 
     return (
-        <div className="image-container">
+        <div className={"image-container"}>
             <div className="container">
-                {user && <h2>Welcome, {user.username}!</h2>}
                 <div className="search-bar">
                     <input
                         type="text"
@@ -68,8 +72,10 @@ const Homepage = () => {
                     />
                     <select value={filterType} onChange={(e) => setFilterType(e.target.value)}>
                         <option value="all">All</option>
-                        {hardwareTypes.map(type => (
-                            <option key={type} value={type}>{type.replace(/-/g, ' ')}</option>
+                        {hardwareTypes.map((type, index) => (
+                            <option key={index} value={type}>
+                                {typeof type === 'string' ? type.replace(/-/g, ' ') : ''}
+                            </option>
                         ))}
                     </select>
                 </div>
@@ -108,9 +114,12 @@ const Homepage = () => {
                         activeClassName={'active'}
                     />
                 </div>
-                <div className="build-button-container">
+                <div className="button-container">
                     <button onClick={handleBuildButtonClick} className="build-button">
                         Go to Build Page
+                    </button>
+                    <button onClick={handleLogout} className="logout-button">
+                        Logout
                     </button>
                 </div>
             </div>
