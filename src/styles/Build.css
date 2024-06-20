@@ -1,0 +1,119 @@
+.image-container2 {
+    background-image: url("../assets/images/motherboard3.jpg");
+    background-size: cover;
+    opacity: 0.90;
+    position: relative;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    background-attachment: fixed;
+    list-style-type: none;
+    min-height: 100vh;
+}
+
+.container {
+    width: 80%;
+    margin: auto;
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent white */
+    border-radius: 10px;
+    z-index: 1;
+    list-style-type: none;
+
+}
+
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    list-style-type: none;
+    cursor: pointer;
+}
+
+.pagination {
+    list-style-type: none; /* Remove default list styling */
+    padding: 0; /* Remove default padding */
+    display: flex; /* Align pagination items in a row */
+    justify-content: center; /* Center the pagination */
+}
+
+.pagination li {
+    margin: 0 5px; /* Add some space between pagination items */
+}
+
+.pagination li a {
+    padding: 8px 16px; /* Add padding to increase the clickable area */
+    border: 1px solid #ddd; /* Add a border */
+    border-radius: 5px; /* Round the corners */
+    text-decoration: none; /* Remove underline from links */
+    color: #333; /* Set text color */
+    background-color: #f8f8f8; /* Set background color */
+}
+
+.pagination li a:hover,
+.pagination li a.active {
+    background-color: #e9e9e9; /* Change background color on hover and for active page */
+    font-weight: bold;
+}
+
+.search-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.search-bar input[type="text"],
+.search-bar select {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    width: 45%; /* Adjust width as needed */
+    font-family: "Futura Book", sans-serif;
+}
+
+.list-container {
+    overflow-y: auto;
+    max-height: 600px; /* Adjust max height as needed */
+}
+
+.hardware-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.item-header {
+    cursor: pointer;
+    padding: 10px 0;
+    border-bottom: 1px solid #ccc;
+}
+
+.item-header:hover {
+    background-color: #f0f0f0;
+}
+
+.item-details {
+    padding: 10px 0;
+}
+
+
+.select-container {
+    margin-bottom: 20px;
+}
+
+.select {
+    padding: 8px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 100%; /* Full width */
+    font-family: "Futura Book", sans-serif;
+}
+
+.select option {
+    padding: 8px;
+}

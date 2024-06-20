@@ -1,10 +1,35 @@
-// Build.js
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ReactPaginate from 'react-paginate';
 import { UserContext } from '../context/UserContext';
+import '../styles/Build.css';
 
-const hardwareTypes = ['motherboard', 'cpu', 'cpu-cooler', 'memory', 'video-card', 'power-supply', 'case', 'case-fan', 'internal-hard-drive', 'sound-card'];
+const hardwareTypes = [
+    { key: 'motherboard', label: 'Motherboard' },
+    { key: 'cpu', label: 'CPU' },
+    { key: 'cpu_cooler', label: 'CPU Cooler' },
+    { key: 'memory', label: 'Memory' },
+    { key: 'video_card', label: 'Video Card' },
+    { key: 'power_supply', label: 'Power Supply' },
+    { key: 'case_type', label: 'Case' },
+    { key: 'case_fan', label: 'Case Fan' },
+    { key: 'internal_hard_drive', label: 'Internal Hard Drive' },
+    { key: 'sound_card', label: 'Sound Card' }
+];
+
+// Mapping from component key to JSON filename
+const componentKeyToFilename = {
+    'case_type': 'case',
+    'cpu_cooler': 'cpu-cooler',
+    'internal_hard_drive': 'internal-hard-drive',
+    'video_card': 'video-card',
+    'power_supply': 'power-supply',
+    'case_fan': 'case-fan',
+    'sound_card': 'sound-card',
+    'motherboard': 'motherboard',
+    'cpu': 'cpu',
+    'memory': 'memory'
+};
 
 const Build = () => {
     const { user, logoutUser } = useContext(UserContext);
@@ -21,7 +46,9 @@ const Build = () => {
 
     useEffect(() => {
         if (currentType) {
-            fetch(`/database/${currentType}.json`)
+            // Convert key from underscores to dashes and handle special case for 'case_type'
+            const apiType = componentKeyToFilename[currentType] || currentType;
+            fetch(`/database/${apiType}.json`)
                 .then(response => response.json())
                 .then(data => setComponentList(data))
                 .catch(error => console.error('Error fetching components:', error));
@@ -56,7 +83,15 @@ const Build = () => {
 
     const handleSaveBuild = async () => {
         try {
-            console.log('Saving build...', buildName, selectedComponents, user.username);
+            // Map selected components to match server expectations
+            const mappedComponents = {};
+            Object.keys(selectedComponents).forEach(key => {
+                if (componentKeyToFilename[key]) {
+                    mappedComponents[componentKeyToFilename[key]] = selectedComponents[key];
+                } else {
+                    mappedComponents[key] = selectedComponents[key];
+                }
+            });
 
             const response = await fetch('http://localhost:5000/api/save-build', {
                 method: 'POST',
@@ -65,7 +100,7 @@ const Build = () => {
                 },
                 body: JSON.stringify({
                     buildName,
-                    selectedComponents,
+                    selectedComponents: mappedComponents,
                     username: user.username
                 })
             });
@@ -74,8 +109,6 @@ const Build = () => {
 
             if (response.ok) {
                 console.log('Build saved:', data.build);
-                // Optionally, redirect or show success message
-                // After saving, fetch the updated builds list
                 fetchBuilds();
             } else {
                 console.error('Failed to save build:', data.error);
@@ -96,40 +129,70 @@ const Build = () => {
 
     const handleBuildClick = (build) => {
         setSelectedBuild(build);
+
+        const updatedSelectedComponents = {};
+
+        // Loop through hardwareTypes to set selected components
+        hardwareTypes.forEach(type => {
+            const key = type.key;
+
+            // Check if the build object has the component key
+            if (build.hasOwnProperty(key)) {
+                updatedSelectedComponents[key] = build[key];
+            } else {
+                // Check if the build object has the filename key
+                const filenameKey = componentKeyToFilename[key];
+                if (build.hasOwnProperty(filenameKey)) {
+                    updatedSelectedComponents[key] = build[filenameKey];
+                } else {
+                    updatedSelectedComponents[key] = null; // Set to null if not found
+                }
+            }
+        });
+
+        setSelectedComponents(updatedSelectedComponents);
+        setBuildName(build.build_name); // Set build name for editing
     };
 
     const filteredList = componentList.filter(item => item.name.toLowerCase().includes(searchTerm.toLowerCase()));
     const pageCount = Math.ceil(filteredList.length / itemsPerPage);
 
     return (
-        <div>
-            <h1>Build Your Computer</h1>
-            {user && <h2>Welcome, {user.username}!</h2>}
-            <div>
-                <select onChange={(e) => setCurrentType(e.target.value)}>
-                    <option value="">Select a component</option>
-                    {hardwareTypes.map(type => (
-                        <option key={type} value={type}>
-                            {type}
-                        </option>
-                    ))}
-                </select>
-            </div>
-            {currentType && (
-                <div>
-                    <input
-                        type="text"
-                        placeholder="Search..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                    <ul>
+        <div className={'image-container2'}>
+            <div className="container">
+                <h1 className="header">Build Your Computer</h1>
+                <div className="select-container">
+                    <select onChange={(e) => setCurrentType(e.target.value)} className="select">
+                        <option value="">Select a component</option>
+                        {hardwareTypes.map(type => (
+                            <option key={type.key} value={type.key}>
+                                {type.label}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+                {currentType && (
+                    <div className="search-bar">
+                        <input
+                            type="text"
+                            placeholder="Search..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="input"
+                        />
+                    </div>
+                )}
+                <div className="list-container">
+                    <ul className="list">
                         {filteredList.slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage).map((item, index) => (
-                            <li key={index} onClick={() => handleSelectComponent(currentType, item.name)}>
+                            <li key={index} onClick={() => handleSelectComponent(currentType, item.name)}
+                                className="item-header">
                                 {item.name}
                             </li>
                         ))}
                     </ul>
+                </div>
+                <div className="pagination-container">
                     <ReactPaginate
                         previousLabel={'previous'}
                         nextLabel={'next'}
@@ -142,68 +205,63 @@ const Build = () => {
                         containerClassName={'pagination'}
                         subContainerClassName={'pages pagination'}
                         activeClassName={'active'}
+                        className="pagination"
                     />
                 </div>
-            )}
-            <div>
-                <table>
-                    <tbody>
-                    {hardwareTypes.map(type => (
-                        <tr key={type}>
-                            <td><strong>{type}</strong></td>
-                            <td>{selectedComponents[type]}</td>
-                        </tr>
-                    ))}
-                    </tbody>
-                </table>
-                <input
-                    type="text"
-                    placeholder="Enter build name..."
-                    value={buildName}
-                    onChange={(e) => setBuildName(e.target.value)}
-                />
-                <button onClick={handleSaveBuild}>
-                    Save Build
-                </button>
-            </div>
-            <div>
-                <h2>My Builds</h2>
-                <ul>
-                    {builds.map(build => (
-                        <li key={build.build_id} onClick={() => handleBuildClick(build)}>
-                            <strong>{build.build_name}</strong> - Created by {build.username}
-                            {/* Display other build details as needed */}
-                        </li>
-                    ))}
-                </ul>
-            </div>
-            {selectedBuild && (
-                <div>
-                    <h2>Selected Build Details</h2>
-                    <p>Build Name: {selectedBuild.build_name}</p>
-                    <p>Created by: {selectedBuild.username}</p>
-                    <p>Motherboard: {selectedBuild.motherboard}</p>
-                    <p>CPU: {selectedBuild.cpu}</p>
-                    <p>CPU Cooler: {selectedBuild.cpu_cooler}</p>
-                    <p>Memory: {selectedBuild.memory}</p>
-                    <p>Video Card: {selectedBuild.video_card}</p>
-                    <p>Power Supply: {selectedBuild.power_supply}</p>
-                    <p>Case: {selectedBuild.case_type}</p>
-                    <p>Case Fan: {selectedBuild.case_fan}</p>
-                    <p>Internal Hard Drive: {selectedBuild.internal_hard_drive}</p>
-                    <p>Sound Card: {selectedBuild.sound_card}</p>
+                <div className="details">
+                    <table>
+                        <tbody>
+                        {hardwareTypes.map(type => (
+                            <tr key={type.key}>
+                                <td><strong>{type.label}</strong></td>
+                                <td>{selectedComponents[type.key]}</td>
+                            </tr>
+                        ))}
+                        </tbody>
+                    </table>
+                    <input
+                        type="text"
+                        placeholder="Enter build name..."
+                        value={buildName}
+                        onChange={(e) => setBuildName(e.target.value)}
+                        className="input"
+                    />
+                    <button onClick={handleSaveBuild} className="button">
+                        Save Build
+                    </button>
                 </div>
-            )}
-            <div>
-            <button onClick={() => navigate('/homepage')}>
-                    Back to Homepage
-                </button>
-                <button onClick={handleLogout}>
-                    Logout
-                </button>
+                <div className="my-builds">
+                    <h2 className="sub-header">My Builds</h2>
+                    <ul className="list">
+                        {builds.map(build => (
+                            <li key={build.build_id} onClick={() => handleBuildClick(build)} className="item-header">
+                                <strong>{build.build_name}</strong>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+                {selectedBuild && (
+                    <div className="selected-build">
+                        <h2 className="sub-header">Selected Build Details</h2>
+                        <p><strong>Build Name:</strong> {selectedBuild.build_name}</p>
+                        <p><strong>Created by:</strong> {selectedBuild.username}</p>
+                        {hardwareTypes.map(type => (
+                            <p key={type.key}><strong>{type.label}:</strong> {selectedBuild[type.key]}</p>
+                        ))}
+                    </div>
+                )}
+                <div className="buttons">
+                    <button onClick={() => navigate('/homepage')} className="button">
+                        Back to Homepage
+                    </button>
+                    <button onClick={handleLogout} className="button">
+                        Logout
+                    </button>
+                </div>
             </div>
         </div>
     );
 };
 
 export default Build;
+
