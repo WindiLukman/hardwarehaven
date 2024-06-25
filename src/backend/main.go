@@ -1,29 +1,54 @@
 package main
 
 import (
-	"log"
+	"encoding/json"
 	"net/http"
-	"os"
-	"your_module_name/handlers"
-
 	"github.com/gorilla/mux"
-	"github.com/joho/godotenv"
+	"log"
 )
 
+type User struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+var users = make(map[string]string) // In-memory user storage
+
+func RegisterUser(w http.ResponseWriter, r *http.Request) {
+	var user User
+	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	users[user.Username] = user.Password
+	json.NewEncoder(w).Encode(map[string]string{"message": "User registered successfully"})
+}
+
+func LoginUser(w http.ResponseWriter, r *http.Request) {
+	var user User
+	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	password, exists := users[user.Username]
+	if !exists || password != user.Password {
+		http.Error(w, "Invalid username or password", http.StatusUnauthorized)
+		return
+	}
+	json.NewEncoder(w).Encode(map[string]string{"message": "Login successful"})
+}
+
 func main() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatalf("Error loading .env file")
-	}
-
 	r := mux.NewRouter()
-	handlers.RegisterHandlers(r)
 
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "5000"
-	}
+	// API routes
+	r.HandleFunc("/api/register", RegisterUser).Methods("POST")
+	r.HandleFunc("/api/login", LoginUser).Methods("POST")
 
-	log.Printf("Server running on port %s", port)
-	log.Fatal(http.ListenAndServe(":"+port, r))
+	// Serve static files
+	fs := http.FileServer(http.Dir("./build"))
+	r.PathPrefix("/").Handler(fs)
+
+	log.Println("Server is running on port 5000...")
+	log.Fatal(http.ListenAndServe(":5000", r))
 }
